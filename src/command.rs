@@ -51,20 +51,14 @@ fn add(input: String) {
 fn get(Id(id): Id) {
     match fs::read_to_string(get_file()) {
         Ok(content) => {
-            let todos = content
-                .split("\n")
-                .map(|c| c.split(" ").collect::<Vec<&str>>())
-                .collect::<Vec<Vec<&str>>>();
-            let todo = todos.iter().find(|c| match c.get(0) {
-                Some(value) => value.to_string() == id,
-                None => false,
-            });
-            match todo {
-                Some(value) => println!("{}", value.join(" ")),
-                None => println!("Not found!"),
+            let todos = content.split("\n").collect::<Vec<&str>>();
+            let index = id.parse::<usize>().unwrap();
+            match todos.get(index)  {
+                Some(todo) => println!("{}", todo),
+                None => println!("No todo found!")
             }
         }
-        Err(_) => println!("File does not exist!"),
+        Err(_) => println!("asd"),
     }
 }
 
