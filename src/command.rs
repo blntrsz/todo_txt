@@ -11,6 +11,7 @@ pub enum Command {
     Get(Id),
     Update(Id, String),
     Delete(Id),
+    List,
     Help,
 }
 
@@ -18,6 +19,20 @@ fn get_file() -> PathBuf {
     let home: &str = Box::leak(std::env::var("HOME").unwrap().into_boxed_str());
 
     Path::new(home).join(".todo_txt")
+}
+
+fn list() {
+    match fs::read_to_string(get_file()) {
+        Ok(content) => {
+            let todos = content.split("\n").collect::<Vec<&str>>();
+            for (index, todo) in todos.iter().enumerate() {
+                if todo.len() > 0 {
+                    println!("{}: {}", index, todo);
+                }
+            }
+        }
+        Err(_) => println!("File does not exist!"),
+    }
 }
 
 fn add(input: String) {
@@ -59,6 +74,7 @@ fn help() {
 
 pub fn handle_command(command: Command) {
     match command {
+        Command::List => list(),
         Command::Add(input) => add(input),
         Command::Get(id) => get(id),
         Command::Update(id, input) => update(id, input),

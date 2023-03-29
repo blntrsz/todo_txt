@@ -3,6 +3,7 @@ use crate::{
     error::ArgsError,
 };
 
+pub const LIST: &str = "list";
 pub const ADD: &str = "add";
 pub const GET: &str = "get";
 pub const UPDATE: &str = "update";
@@ -19,6 +20,7 @@ pub fn validate_arguments(args: Vec<String>) -> Result<Command, ArgsError> {
     if args.len() < 3 {
         return match args[1].as_str() {
             HELP | DASH_DASH_HELP | DASH_HELP => Ok(Command::Help),
+            LIST => Ok(Command::List),
             ADD | GET | UPDATE | DELETE => Err(ArgsError::NotEnoughArgument),
             _ => Err(ArgsError::NonValidCommand(args[1].clone())),
         };
