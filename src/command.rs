@@ -36,16 +36,20 @@ fn list() {
     }
 }
 
-fn add(input: String) {
+fn write_to_todos(input: String, append: bool) {
     let mut file = OpenOptions::new()
         .write(true)
-        .append(true)
+        .append(append)
         .open(get_file())
         .unwrap();
 
-    if let Err(e) = file.write_all(format!("{}\n", input).as_bytes()) {
+    if let Err(e) = file.write_all(input.as_bytes()) {
         eprintln!("Couldn't write to file: {}", e);
     }
+}
+
+fn add(input: String) {
+    write_to_todos(format!("\n{}", input), true)
 }
 
 fn get(Id(id): Id) {
@@ -53,9 +57,9 @@ fn get(Id(id): Id) {
         Ok(content) => {
             let todos = content.split("\n").collect::<Vec<&str>>();
             let index = id.parse::<usize>().unwrap();
-            match todos.get(index)  {
+            match todos.get(index) {
                 Some(todo) => println!("{}", todo),
-                None => println!("No todo found!")
+                None => println!("No todo found!"),
             }
         }
         Err(_) => println!("asd"),
@@ -63,7 +67,21 @@ fn get(Id(id): Id) {
 }
 
 fn update(Id(id): Id, input: String) {
-    println!("{}, {}", id, input)
+    match fs::read_to_string(get_file()) {
+        Ok(content) => {
+            let mut todos = content.split("\n").collect::<Vec<&str>>();
+            let index = id.parse::<usize>().unwrap();
+            match todos.get(index) {
+                Some(_) => {
+                    todos[index] = &input.as_str();
+
+                    write_to_todos(todos.join("\n"), false)
+                }
+                None => println!("No todo found!"),
+            }
+        }
+        Err(_) => println!("asd"),
+    }
 }
 
 fn delete(Id(id): Id) {
