@@ -17,9 +17,10 @@ pub enum Command {
 }
 
 fn get_file() -> PathBuf {
-    let home: &str = Box::leak(std::env::var("HOME").unwrap().into_boxed_str());
-
-    Path::new(home).join(".todo_txt")
+    match std::env::var("HOME") {
+        Ok(home) => Path::new(Box::leak(home.into_boxed_str())).join(".todo_txt"),
+        Err(_) => Path::new(".todo_txt").to_path_buf(),
+    }
 }
 
 fn list() {
@@ -56,10 +57,12 @@ fn get(Id(id): Id) {
     match fs::read_to_string(get_file()) {
         Ok(content) => {
             let todos = content.split("\n").collect::<Vec<&str>>();
-            let index = id.parse::<usize>().unwrap();
-            match todos.get(index) {
-                Some(todo) => println!("{}", todo),
-                None => println!("No todo found!"),
+            match id.parse::<usize>() {
+                Ok(index) => match todos.get(index) {
+                    Some(todo) => println!("{}", todo),
+                    None => println!("No todo found!"),
+                },
+                Err(_) => println!("asd"),
             }
         }
         Err(_) => println!("asd"),
@@ -70,14 +73,16 @@ fn update(Id(id): Id, input: String) {
     match fs::read_to_string(get_file()) {
         Ok(content) => {
             let mut todos = content.split("\n").collect::<Vec<&str>>();
-            let index = id.parse::<usize>().unwrap();
-            match todos.get(index) {
-                Some(_) => {
-                    todos[index] = &input.as_str();
+            match id.parse::<usize>() {
+                Ok(index) => match todos.get(index) {
+                    Some(_) => {
+                        todos[index] = &input.as_str();
 
-                    write_to_todos(todos.join("\n"), false)
-                }
-                None => println!("No todo found!"),
+                        write_to_todos(todos.join("\n"), false)
+                    }
+                    None => println!("No todo found!"),
+                },
+                Err(_) => println!("asd"),
             }
         }
         Err(_) => println!("asd"),
@@ -88,14 +93,16 @@ fn delete(Id(id): Id) {
     match fs::read_to_string(get_file()) {
         Ok(content) => {
             let mut todos = content.split("\n").collect::<Vec<&str>>();
-            let index = id.parse::<usize>().unwrap();
-            match todos.get(index) {
-                Some(_) => {
-                    todos.remove(index);
+            match id.parse::<usize>() {
+                Ok(index) => match todos.get(index) {
+                    Some(_) => {
+                        todos.remove(index);
 
-                    write_to_todos(todos.join("\n"), false)
-                }
-                None => println!("No todo found!"),
+                        write_to_todos(todos.join("\n"), false)
+                    }
+                    None => println!("No todo found!"),
+                },
+                Err(_) => println!("asd"),
             }
         }
         Err(_) => println!("asd"),
