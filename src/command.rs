@@ -31,7 +31,10 @@ fn get(Id(id): Id) {
                 .split("\n")
                 .map(|c| c.split(" ").collect::<Vec<&str>>())
                 .collect::<Vec<Vec<&str>>>();
-            let todo = todos.iter().find(|c| c[0] == id);
+            let todo = todos.iter().find(|c| match c.get(0) {
+                Some(value) => value.to_string() == id,
+                None => false,
+            });
             match todo {
                 Some(value) => println!("{}", value.join(" ")),
                 None => println!("Not found!"),
