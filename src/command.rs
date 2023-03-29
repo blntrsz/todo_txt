@@ -85,7 +85,21 @@ fn update(Id(id): Id, input: String) {
 }
 
 fn delete(Id(id): Id) {
-    println!("{}", id)
+    match fs::read_to_string(get_file()) {
+        Ok(content) => {
+            let mut todos = content.split("\n").collect::<Vec<&str>>();
+            let index = id.parse::<usize>().unwrap();
+            match todos.get(index) {
+                Some(_) => {
+                    todos.remove(index);
+
+                    write_to_todos(todos.join("\n"), false)
+                }
+                None => println!("No todo found!"),
+            }
+        }
+        Err(_) => println!("asd"),
+    }
 }
 
 fn help() {
