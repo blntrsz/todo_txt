@@ -1,5 +1,6 @@
 use std::{
-    fs,
+    fs::{self, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
     process::exit,
 };
@@ -36,7 +37,15 @@ fn list() {
 }
 
 fn add(input: String) {
-    println!("{}", input);
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(get_file())
+        .unwrap();
+
+    if let Err(e) = file.write_all(format!("{}\n", input).as_bytes()) {
+        eprintln!("Couldn't write to file: {}", e);
+    }
 }
 
 fn get(Id(id): Id) {
@@ -57,7 +66,6 @@ fn get(Id(id): Id) {
         }
         Err(_) => println!("File does not exist!"),
     }
-    println!("{}", id);
 }
 
 fn update(Id(id): Id, input: String) {
